@@ -29,6 +29,10 @@ class Settings(BaseSettings):
     PDL_API_KEY: str = ""
     APOLLO_API_KEY: str = ""
 
+    # Comma-separated list of allowed CORS origins.
+    # In Railway, set:  ALLOWED_ORIGINS=https://your-app.vercel.app,https://custom-domain.com
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3411,http://127.0.0.1:3411"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property

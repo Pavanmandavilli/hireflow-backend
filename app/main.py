@@ -67,14 +67,12 @@ def create_app() -> FastAPI:
     # CORS goes first so the Next.js frontend (a different origin/port) can call this API
     # from the browser — curl/server-to-server calls don't need this, but real browser
     # fetch() calls are blocked without it.
+    # Origins are read from the ALLOWED_ORIGINS env var (comma-separated).
+    # On Railway add: ALLOWED_ORIGINS=https://your-app.vercel.app,http://localhost:3000
+    allowed_origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-            "http://localhost:3411",
-            "http://127.0.0.1:3411",
-        ],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
