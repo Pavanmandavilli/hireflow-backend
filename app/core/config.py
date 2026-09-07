@@ -9,15 +9,11 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
 
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: int = 5432
-    POSTGRES_DB: str = "app"
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
+    # PostgreSQL — accepts a full connection URL (e.g. from Neon)
+    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/app"
 
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 0
+    # Redis — accepts a full connection URL (e.g. from Upstash, use rediss:// for TLS)
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     JWT_PRIVATE_KEY_PATH: str = "keys/private.pem"
     JWT_PUBLIC_KEY_PATH: str = "keys/public.pem"
@@ -36,13 +32,22 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
-    def database_url(self) -> str:
-        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+    def database_url_async(self) -> str:
+        """Return the DATABASE_URL adapted for SQLAlchemy asyncpg driver."""
+        url = self.DATABASE_URL
+        # Replace postgresql:// or postgres:// with the asyncpg dialect
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        # asyncpg uses ssl=require instead of sslmode=require
+        url = url.replace("sslmode=require", "ssl=require")
+        # channel_binding is not supported by asyncpg — strip it
+        url = url.replace("&channel_binding=require", "")
+        url = url.replace("?channel_binding=require", "")
+        return url
 
     @property
     def service_prefix(self) -> str:
         return "/" + self.APP_NAME.lower().replace(" ", "-")
-
 
 @lru_cache
 def get_settings() -> Settings:

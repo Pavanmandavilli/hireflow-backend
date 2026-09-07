@@ -13,13 +13,13 @@ _redis: aioredis.Redis | None = None
 async def get_redis() -> aioredis.Redis:
     global _redis
     if _redis is None:
-        _redis = aioredis.Redis(
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
-            db=settings.REDIS_DB,
+        _redis = aioredis.from_url(
+            settings.REDIS_URL,
             decode_responses=True,
+            # Required for Upstash rediss:// (TLS) — skip cert verification
+            ssl_cert_reqs=None,
         )
-        logger.info(f"Redis connected to {settings.REDIS_HOST}:{settings.REDIS_PORT}")
+        logger.info(f"Redis connected to {settings.REDIS_URL.split('@')[-1]}")
     return _redis
 
 
