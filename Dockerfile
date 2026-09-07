@@ -6,7 +6,7 @@ WORKDIR /app
 RUN pip install --no-cache-dir uv
 
 COPY pyproject.toml requirements.txt* ./
-RUN uv venv .venv && .venv/bin/pip install --no-cache-dir -r requirements.txt
+RUN uv venv .venv && uv pip install --no-cache-dir -r requirements.txt
 
 # ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM python:3.12-slim AS runtime
