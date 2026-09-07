@@ -1,15 +1,17 @@
 # gunicorn.conf.py — production WSGI/ASGI server configuration
 import multiprocessing
+import os
 
-# Workers
+# Workers — capped at 2 for free-tier containers (low RAM)
 worker_class = "uvicorn.workers.UvicornWorker"
-workers = multiprocessing.cpu_count() * 2 + 1
+workers = min(multiprocessing.cpu_count() * 2 + 1, 2)
 threads = 1
 
-# Networking
+# Networking — respect PORT injected by Railway / Render / Fly / Koyeb
 host = "0.0.0.0"
-port = 8000
+port = int(os.environ.get("PORT", 8000))
 bind = f"{host}:{port}"
+
 
 # Timeouts
 timeout = 120
