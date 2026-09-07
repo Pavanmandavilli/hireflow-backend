@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: hireflow-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon   # Change to: ohio | singapore | frankfurt
+
+    healthCheckPath: /hiring-assistant/docs
+
+    envVars:
+      # ── App ───────────────────────────────────────────────────────────────
+      - key: APP_NAME
+        value: hiring-assistant
+      - key: ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: INFO
+
+      # ── PostgreSQL (Neon) ─────────────────────────────────────────────────
+      - key: DATABASE_URL
+        sync: false   # Set this manually in Render dashboard
+
+      # ── Redis (Upstash) ───────────────────────────────────────────────────
+      - key: REDIS_URL
+        sync: false   # Set this manually in Render dashboard
+
+      # ── JWT ───────────────────────────────────────────────────────────────
+      - key: JWT_PRIVATE_KEY_PATH
+        value: keys/private.pem
+      - key: JWT_PUBLIC_KEY_PATH
+        value: keys/public.pem
+      - key: JWT_ALGORITHM
+        value: RS256
+      - key: JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+
+      # ── Hunar Voice AI ────────────────────────────────────────────────────
+      - key: HUNAR_API_KEY
+        sync: false
+      - key: HUNAR_TIMEOUT_SECONDS
+        value: "45"
+      - key: HUNAR_WEBHOOK_SECRET
+        sync: false
+
+      # ── Optional APIs ─────────────────────────────────────────────────────
+      - key: PDL_API_KEY
+        sync: false
+      - key: APOLLO_API_KEY
+        sync: false
